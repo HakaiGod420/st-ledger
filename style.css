@@ -64,6 +64,7 @@
 #lgd-panel.is-collapsed .lgd-head {
     align-items: center;
     padding: 7px 8px 7px 11px;
+    cursor: pointer;
 }
 
 #lgd-panel.is-collapsed .lgd-head-text {
@@ -731,6 +732,12 @@
     overflow: hidden;
 }
 
+.lgd-inline--swipes {
+    /* ST floats the swipe counter and arrows at the bottom-right of the message;
+       this strip is what keeps them off the block's last row. */
+    margin-bottom: 30px;
+}
+
 .lgd-inline-head {
     display: flex;
     align-items: center;
@@ -1353,25 +1360,28 @@
 }
 
 @media (max-width: 720px) {
-    /* A right-hand drawer, so the chat input and the send button stay usable. */
+    /* A right-hand drawer anchored to the top: the bottom of the screen belongs
+       to the chat input, and a `bottom` offset there hid the panel's footer.
+       JS then caps the height to the measured top of #send_form. */
     #lgd-panel {
-        top: 62px;
+        top: 68px;
         right: 0;
         left: auto;
-        bottom: 76px;
-        width: min(88vw, 340px);
-        max-height: none;
+        bottom: auto;
+        width: min(92vw, 360px);
+        max-height: calc(100dvh - 170px);
         border-radius: 14px 0 0 14px;
         border-right: 0;
     }
 
     #lgd-panel.is-collapsed {
-        top: auto;
+        top: 68px;
         right: 8px;
-        bottom: 76px;
+        bottom: auto;
         left: auto;
         width: auto;
-        max-width: 210px;
+        max-width: 220px;
+        max-height: none;
         border-radius: 12px;
         border-right: 1px solid var(--lgd-line);
     }

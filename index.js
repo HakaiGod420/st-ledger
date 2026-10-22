@@ -175,6 +175,7 @@ function buildView() {
 function refresh({ inline = true } = {}) {
     const view = buildView();
     panel?.render(view);
+    fitPanelToViewport();
     if (inline) {
         mountInline(view);
     }
@@ -202,12 +203,14 @@ function mountInline(view) {
         return;
     }
 
-    const text = last.querySelector('.mes_text');
-    if (text) {
-        text.after(element);
-    } else {
-        last.append(element);
-    }
+    // Sit at the end of the message block, and reserve the strip that ST's
+    // absolutely-positioned swipe counter and arrows live in, or they draw over
+    // the last row of the block.
+    const swipes = last.querySelector('.swipes-counter, .swipe_left, .swipe_right, .swipes-counter-container');
+    element.classList.toggle('lgd-inline--swipes', Boolean(swipes));
+
+    const block = last.querySelector('.mes_block') ?? last;
+    block.append(element);
 }
 
 /* ------------------------------------------------------------------ injection */
@@ -554,6 +557,29 @@ function handleAction(detail) {
 
 /* --------------------------------------------------------------------- panel */
 
+/**
+ * On a phone the panel must end above SillyTavern's input bar. The bar's height
+ * depends on the theme and on the number of quick-reply buttons, so measure it
+ * rather than hardcoding an offset — a fixed `bottom` is what put the panel's
+ * footer underneath the input.
+ */
+function fitPanelToViewport() {
+    if (!panel) {
+        return;
+    }
+
+    if (window.innerWidth > 720) {
+        panel.el.style.maxHeight = '';
+        return;
+    }
+
+    const top = 68;
+    const form = document.getElementById('send_form') ?? document.getElementById('send_but')?.closest('form');
+    const formTop = form?.getBoundingClientRect().top;
+    const limit = Number.isFinite(formTop) && formTop > top + 200 ? formTop : window.innerHeight - 92;
+    panel.el.style.maxHeight = `${Math.max(220, Math.round(limit - top - 12))}px`;
+}
+
 function applyPanelPosition() {
     if (!panel) {
         return;
@@ -589,6 +615,7 @@ function ensurePanel() {
     panel = createPanel({ onAction: handleAction });
     document.body.append(panel.el);
     applyPanelPosition();
+    fitPanelToViewport();
     return panel;
 }
 
@@ -879,8 +906,12 @@ async function bootstrap() {
     let resizeTimer = null;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = window.setTimeout(applyPanelPosition, 180);
+        resizeTimer = window.setTimeout(() => {
+            applyPanelPosition();
+            fitPanelToViewport();
+        }, 180);
     });
+    window.addEventListener('orientationchange', () => window.setTimeout(fitPanelToViewport, 260));
     waitForWandMenu();
     registerSlashCommand();
     refresh();

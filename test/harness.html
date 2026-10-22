@@ -64,6 +64,7 @@
         }
 
         .mes {
+            position: relative;
             display: flex;
             gap: 11px;
             padding: 12px 13px;
@@ -111,6 +112,74 @@
         .mes_text {
             font-size: 14.5px;
             white-space: pre-wrap;
+        }
+
+        .swipes-counter {
+            position: absolute;
+            right: 44px;
+            bottom: 5px;
+            font-size: 11px;
+            opacity: 0.55;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .swipe_left,
+        .swipe_right {
+            position: absolute;
+            bottom: 0;
+            width: 32px;
+            height: 26px;
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            opacity: 0.55;
+            cursor: pointer;
+        }
+
+        .swipe_left {
+            right: 68px;
+        }
+
+        .swipe_right {
+            right: 12px;
+        }
+
+        #send_form {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 64px;
+            padding: 10px 16px;
+            box-sizing: border-box;
+            background: rgba(13, 14, 19, 0.96);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        #send_textarea {
+            flex: 1;
+            height: 42px;
+            resize: none;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: inherit;
+            font: inherit;
+            padding: 10px 12px;
+        }
+
+        #send_but {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: rgba(158, 201, 255, 0.18);
+            color: inherit;
         }
 
         .mes_text em {
@@ -342,6 +411,9 @@ Kisa is sitting on the bench with her knees pulled up, scrunchie around her wris
 
 She is wearing a white crop top and high-waisted shorts, the lavender scrunchie still on her wrist, hair clip fighting a losing battle. She looks at the timetable, then at me, then away.</div>
             </div>
+            <span class="swipes-counter">1/2</span>
+            <div class="swipe_left"><i class="fa-solid fa-chevron-left"></i></div>
+            <div class="swipe_right"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
         <div class="mes" mesid="3" is_user="true">
             <div class="mes_avatar">Kai</div>
@@ -351,6 +423,11 @@ She is wearing a white crop top and high-waisted shorts, the lavender scrunchie 
             </div>
         </div>
     </div>
+
+    <form id="send_form">
+        <textarea id="send_textarea" placeholder="Type a message…"></textarea>
+        <div id="send_but"><i class="fa-solid fa-paper-plane"></i></div>
+    </form>
 
     <div id="extensions_settings"></div>
     <div id="devbar">
@@ -431,6 +508,12 @@ She is wearing a white crop top and high-waisted shorts, the lavender scrunchie 
                     <div class="mes_text"></div>
                 </div>`;
             node.querySelector('.mes_text').textContent = text;
+            if (!isUser) {
+                node.insertAdjacentHTML('beforeend', `
+                    <span class="swipes-counter">1/2</span>
+                    <div class="swipe_left"><i class="fa-solid fa-chevron-left"></i></div>
+                    <div class="swipe_right"><i class="fa-solid fa-chevron-right"></i></div>`);
+            }
             chatEl.append(node);
             eventSource.emit(isUser ? eventTypes.MESSAGE_SENT : eventTypes.MESSAGE_RECEIVED);
         }

@@ -90,7 +90,7 @@ export function createPanel({ onAction }) {
                 <span class="lgd-badge" data-ref="badge" hidden>0</span>
                 <button class="lgd-icon-btn" type="button" data-act="sync" title="Scan new messages" aria-label="Scan new messages">${icon('sync')}</button>
                 <button class="lgd-icon-btn" type="button" data-act="settings" title="Ledger settings" aria-label="Ledger settings">${icon('settings')}</button>
-                <button class="lgd-icon-btn" type="button" data-act="collapse" title="Minimise the panel" aria-label="Minimise the panel">${icon('collapse')}</button>
+                <button class="lgd-icon-btn" type="button" data-act="collapse" title="Minimise or open the panel" aria-label="Minimise or open the panel">${icon('collapse')}</button>
             </div>
         </div>
         <div class="lgd-status" data-ref="status"></div>
@@ -201,13 +201,27 @@ export function createPanel({ onAction }) {
         }
     });
 
-    /* drag by the header */
+    /* drag by the header (and open the panel if it is a plain tap) */
     const head = el.querySelector('[data-grip]');
     let drag = null;
+    let suppressClick = false;
+
+    head.addEventListener('click', event => {
+        if (suppressClick) {
+            suppressClick = false;
+            return;
+        }
+        if (event.target.closest('button') || !state.collapsed) {
+            return;
+        }
+        state.collapsed = false;
+        render(state.view);
+    });
     head.addEventListener('pointerdown', event => {
         if (event.button !== 0 || event.target.closest('button') || window.innerWidth <= 720) {
             return;
         }
+        suppressClick = false;
         const rect = el.getBoundingClientRect();
         drag = { dx: event.clientX - rect.left, dy: event.clientY - rect.top, w: rect.width, h: rect.height };
         el.classList.add('is-dragging');
@@ -231,6 +245,7 @@ export function createPanel({ onAction }) {
         }
         drag = null;
         el.classList.remove('is-dragging');
+        suppressClick = true;
         head.releasePointerCapture?.(event.pointerId);
         emit({ type: 'move', pos: { x: Math.round(el.offsetLeft), y: Math.round(el.offsetTop) } });
     });
