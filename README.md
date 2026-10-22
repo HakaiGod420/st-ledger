@@ -4,6 +4,7 @@
 
 **A live status tracker for SillyTavern — the time, the place, the clothes, the money, kept current in a panel instead of a paragraph.**
 
+[![release](https://img.shields.io/github/v/release/HakaiGod420/st-ledger?sort=semver&color=8a7cff)](https://github.com/HakaiGod420/st-ledger/releases)
 ![SillyTavern 1.12+](https://img.shields.io/badge/SillyTavern-1.12%2B-8a7cff)
 ![License MIT](https://img.shields.io/badge/license-MIT-9ec9ff)
 ![No external service](https://img.shields.io/badge/network-none-68c98b)
@@ -103,13 +104,13 @@ Two guards worth knowing about: a scanned message is fingerprinted (name, role, 
 https://github.com/HakaiGod420/st-ledger
 ```
 
-**Manually** — unzip into:
+**From a release** — download `st-ledger.zip` from [Releases](https://github.com/HakaiGod420/st-ledger/releases), then unzip it into:
 
 ```
 SillyTavern/public/scripts/extensions/third-party/st-ledger/
 ```
 
-then reload SillyTavern. The panel appears on the right; drag it by its header, or find *Ledger* in the wand menu.
+so that `manifest.json` sits directly inside `st-ledger/`, then reload SillyTavern. The panel appears on the right; drag it by its header, or find *Ledger* in the wand menu.
 
 **First run:** open a chat and press **Sync** (or `/ledger scan`). The first scan reads the tail of the chat in batches of twelve messages; a long chat asks before spending more than one generation.
 

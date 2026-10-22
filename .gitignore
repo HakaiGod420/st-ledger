@@ -5,3 +5,6 @@ test/*.err
 test/tmp/
 *.zip
 .DS_Store
+test/publish.py
+test/release.py
+test/upload_asset.sh
