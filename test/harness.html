@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Ledger — harness</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="mirror/scripts/extensions/third-party/st-ledger/style.css">
+    <style>
+        :root {
+            --SmartThemeBodyColor: rgba(255, 255, 255, 0.9);
+            --SmartThemeEmColor: #b9a9ff;
+            --SmartThemeQuoteColor: #9ec9ff;
+            --SmartThemeUnderlineColor: rgba(255, 255, 255, 0.5);
+            --SmartThemeBorderColor: rgba(255, 255, 255, 0.22);
+            --SmartThemeBlurTintColor: rgba(19, 21, 27, 0.95);
+            --SmartThemeBlurStrength: 10px;
+            --SmartThemeShadowColor: rgba(0, 0, 0, 0.45);
+            --mainFontSize: 15px;
+            --mainFontFamily: "Segoe UI", system-ui, -apple-system, sans-serif;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background-color: #0c0d11;
+            background: radial-gradient(120% 80% at 70% 0%, #1d2331 0%, #12141a 55%, #0c0d11 100%);
+            color: var(--SmartThemeBodyColor);
+            font-family: var(--mainFontFamily);
+            font-size: var(--mainFontSize);
+        }
+
+        #topbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(12, 13, 17, 0.72);
+            backdrop-filter: blur(12px);
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        #topbar .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #68c98b;
+        }
+
+        #chat {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 26px 22px 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mes {
+            display: flex;
+            gap: 11px;
+            padding: 12px 13px;
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.028);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            line-height: 1.6;
+        }
+
+        .mes[is_user="true"] {
+            background: rgba(158, 201, 255, 0.055);
+            border-color: rgba(158, 201, 255, 0.12);
+        }
+
+        .mes_avatar {
+            flex: 0 0 auto;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: rgba(158, 201, 255, 0.16);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .mes[is_user="true"] .mes_avatar {
+            background: rgba(185, 169, 255, 0.18);
+        }
+
+        .mes_block {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mes_name {
+            font-size: 10.5px;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            opacity: 0.45;
+            margin-bottom: 3px;
+        }
+
+        .mes_text {
+            font-size: 14.5px;
+            white-space: pre-wrap;
+        }
+
+        .mes_text em {
+            color: var(--SmartThemeEmColor);
+            opacity: 0.9;
+        }
+
+        /* --- SillyTavern shell pieces the extension relies on --- */
+
+        dialog.popup {
+            position: fixed;
+            inset: 0;
+            margin: auto;
+            border: none;
+            padding: 0;
+            background: transparent;
+            color: var(--SmartThemeBodyColor);
+            font-family: var(--mainFontFamily);
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+        }
+
+        dialog.popup::backdrop {
+            background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(2px);
+        }
+
+        .popup-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        .popup-content {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .popup-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 8px 10px;
+        }
+
+        .popup-button-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            opacity: 0.55;
+            border-radius: 8px;
+            z-index: 5;
+        }
+
+        .menu_button {
+            cursor: pointer;
+        }
+
+        #extensions_settings {
+            position: fixed;
+            left: 14px;
+            top: 64px;
+            width: 300px;
+            z-index: 40;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(16, 18, 23, 0.94);
+            backdrop-filter: blur(8px);
+            font-size: 13px;
+        }
+
+        #extensions_settings .inline-drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        #extensions_settings .inline-drawer-content {
+            display: block;
+        }
+
+        #extensions_settings .inline-drawer-icon.down {
+            transform: rotate(0deg);
+            opacity: 0.5;
+        }
+
+        #extensionsMenu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 4px;
+            width: 200px;
+            border: 1px solid var(--SmartThemeBorderColor);
+            border-radius: 10px;
+            background: var(--SmartThemeBlurTintColor);
+            backdrop-filter: blur(10px);
+        }
+
+        #extensionsMenu > div {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 6px;
+            border-radius: 7px;
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 12px;
+        }
+
+        #extensionsMenu > div:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .extensionsMenuExtensionButton {
+            width: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+        }
+
+        /* --- dev chrome --- */
+
+        #devbar {
+            position: fixed;
+            left: 14px;
+            bottom: 14px;
+            z-index: 60;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 640px;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(8, 9, 12, 0.86);
+            backdrop-filter: blur(10px);
+        }
+
+        #devbar button {
+            font: inherit;
+            font-size: 11.5px;
+            padding: 6px 9px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.05);
+            color: inherit;
+            cursor: pointer;
+        }
+
+        #devbar button:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        #devbar .readout {
+            align-self: center;
+            font-size: 11px;
+            opacity: 0.5;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #toasts {
+            position: fixed;
+            right: 14px;
+            bottom: 14px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .toast {
+            max-width: 320px;
+            padding: 9px 13px;
+            border-radius: 9px;
+            font-size: 12.5px;
+            background: rgba(20, 22, 28, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.9);
+        }
+
+        .toast.success {
+            border-color: rgba(120, 220, 150, 0.5);
+        }
+
+        .toast.error {
+            border-color: rgba(224, 87, 91, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topbar"><span class="dot"></span> Kisa · harness chat</div>
+
+    <div id="chat">
+        <div class="mes" mesid="0" is_user="false">
+            <div class="mes_avatar">K</div>
+            <div class="mes_block">
+                <div class="mes_name">Kisa</div>
+                <div class="mes_text"><em>The train is late and the platform lights are buzzing.</em>
+
+Kisa is sitting on the bench with her knees pulled up, scrunchie around her wrist. "You took your time," she says, without looking up. It is 21:47 on October 14, and the station is nearly empty.</div>
+            </div>
+        </div>
+        <div class="mes" mesid="1" is_user="true">
+            <div class="mes_avatar">Kai</div>
+            <div class="mes_block">
+                <div class="mes_name">Kai</div>
+                <div class="mes_text">"The bus broke down," I say, dropping onto the bench beside her. My phone says 21:49.</div>
+            </div>
+        </div>
+        <div class="mes" mesid="2" is_user="false">
+            <div class="mes_avatar">K</div>
+            <div class="mes_block">
+                <div class="mes_name">Kisa</div>
+                <div class="mes_text">She pulls a transit card out of her shorts pocket and flicks it at me. "I have two rides left on this. You owe me one."
+
+She is wearing a white crop top and high-waisted shorts, the lavender scrunchie still on her wrist, hair clip fighting a losing battle. She looks at the timetable, then at me, then away.</div>
+            </div>
+        </div>
+        <div class="mes" mesid="3" is_user="true">
+            <div class="mes_avatar">Kai</div>
+            <div class="mes_block">
+                <div class="mes_name">Kai</div>
+                <div class="mes_text">I catch the card. "I will pay you back on Friday."</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="extensions_settings"></div>
+    <div id="devbar">
+        <button data-dev="ai">+ AI message</button>
+        <button data-dev="user">+ User message</button>
+        <button data-dev="edit">Edit last</button>
+        <button data-dev="fail">Fail next scan</button>
+        <button data-dev="light">Light theme</button>
+        <button data-dev="settings">Open settings</button>
+        <span class="readout" id="readout"></span>
+    </div>
+    <div id="toasts"></div>
+
+    <script>
+        window.toastr = {
+            _add(text, className) {
+                const el = document.createElement('div');
+                el.className = `toast ${className}`;
+                el.textContent = String(text ?? '');
+                document.getElementById('toasts').append(el);
+                setTimeout(() => el.remove(), 4200);
+            },
+            info(text) { this._add(text, 'info'); },
+            success(text) { this._add(text, 'success'); },
+            warning(text) { this._add(text, 'warning'); },
+            error(text) { this._add(text, 'error'); },
+        };
+
+        window.__errors = [];
+        window.addEventListener('error', event => window.__errors.push(String(event.message)));
+        window.addEventListener('unhandledrejection', event => window.__errors.push(String(event.reason)));
+
+        window.jQuery = function (callback) {
+            Promise.resolve().then(callback);
+            return { append() { }, on() { } };
+        };
+        window.$ = window.jQuery;
+
+        // ST injects the wand menu after extensions load.
+        setTimeout(() => {
+            const menu = document.createElement('div');
+            menu.id = 'extensionsMenu';
+            menu.innerHTML = '<div><div class="extensionsMenuExtensionButton fa-solid fa-paperclip"></div><span>Attach File</span></div>';
+            document.getElementById('devbar').before(menu);
+            menu.style.position = 'fixed';
+            menu.style.left = '14px';
+            menu.style.bottom = '74px';
+            menu.style.zIndex = '50';
+        }, 350);
+    </script>
+
+    <script type="module">
+        import './mirror/scripts/extensions/third-party/st-ledger/index.js';
+        import { eventSource, eventTypes, getContext } from './mirror/scripts/extensions.js';
+
+        const chatEl = document.getElementById('chat');
+        let counter = 4;
+
+        function appendMessage(text, isUser) {
+            const context = getContext();
+            context.chat.push({
+                name: isUser ? context.name1 : context.name2,
+                is_user: isUser,
+                is_system: false,
+                send_date: Date.now(),
+                mes: text,
+                extra: {},
+            });
+            const id = context.chat.length - 1;
+            const node = document.createElement('div');
+            node.className = 'mes';
+            node.setAttribute('mesid', String(id));
+            node.setAttribute('is_user', String(isUser));
+            node.innerHTML = `
+                <div class="mes_avatar">${isUser ? 'Kai' : 'K'}</div>
+                <div class="mes_block">
+                    <div class="mes_name">${isUser ? 'Kai' : 'Kisa'}</div>
+                    <div class="mes_text"></div>
+                </div>`;
+            node.querySelector('.mes_text').textContent = text;
+            chatEl.append(node);
+            eventSource.emit(isUser ? eventTypes.MESSAGE_SENT : eventTypes.MESSAGE_RECEIVED);
+        }
+
+        window.H = {
+            addAi(text) {
+                appendMessage(text ?? `*She checks the timetable again.* "The next one is in ${counter++} minutes."`, false);
+            },
+            addUser(text) {
+                appendMessage(text ?? `"Fine. I will wait." (${counter++})`, true);
+            },
+            editLast(text) {
+                const context = getContext();
+                const last = context.chat[context.chat.length - 1];
+                if (!last) {
+                    return;
+                }
+                last.mes = text ?? `${last.mes} She adds, "And do not lose it."`;
+                const node = chatEl.querySelector(`.mes[mesid="${context.chat.length - 1}"] .mes_text`);
+                if (node) {
+                    node.textContent = last.mes;
+                }
+                eventSource.emit(eventTypes.MESSAGE_EDITED, context.chat.length - 1);
+            },
+            openSettings() {
+                document.getElementById('lgd-open')?.click();
+            },
+        };
+
+        document.getElementById('devbar').addEventListener('click', event => {
+            const button = event.target.closest('[data-dev]');
+            if (!button) {
+                return;
+            }
+            switch (button.dataset.dev) {
+                case 'ai': window.H.addAi(); break;
+                case 'user': window.H.addUser(); break;
+                case 'edit': window.H.editLast(); break;
+                case 'fail': window.__failNext = true; break;
+                case 'light': {
+                    const root = document.documentElement.style;
+                    const light = root.getPropertyValue('--SmartThemeBodyColor') === 'rgba(28, 30, 36, 0.92)';
+                    root.setProperty('--SmartThemeBodyColor', light ? 'rgba(255, 255, 255, 0.9)' : 'rgba(28, 30, 36, 0.92)');
+                    root.setProperty('--SmartThemeBlurTintColor', light ? 'rgba(19, 21, 27, 0.95)' : 'rgba(250, 249, 245, 0.97)');
+                    root.setProperty('--SmartThemeBorderColor', light ? 'rgba(255, 255, 255, 0.22)' : 'rgba(0, 0, 0, 0.2)');
+                    root.setProperty('--SmartThemeQuoteColor', light ? '#9ec9ff' : '#2f6fb3');
+                    root.setProperty('--SmartThemeEmColor', light ? '#b9a9ff' : '#6d5bd0');
+                    document.body.style.background = light
+                        ? 'radial-gradient(120% 80% at 70% 0%, #1d2331 0%, #12141a 55%, #0c0d11 100%)'
+                        : 'radial-gradient(120% 80% at 70% 0%, #f2f1ec 0%, #e9e8e3 55%, #dedcd6 100%)';
+                    break;
+                }
+                case 'settings': window.H.openSettings(); break;
+            }
+        });
+
+        setInterval(() => {
+            const readout = document.getElementById('readout');
+            readout.textContent = `calls ${window.__calls ?? 0} · inj ${window.__injections?.length ?? 0} · meta ${window.__metaSaves ?? 0}`;
+        }, 400);
+    </script>
+</body>
+
+</html>

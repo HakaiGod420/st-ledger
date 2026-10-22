@@ -1,0 +1,12 @@
+{
+  "display_name": "Ledger — Live Status Tracker",
+  "loading_order": 20,
+  "requires": [],
+  "optional": [],
+  "js": "index.js",
+  "css": "style.css",
+  "author": "HakaiGod420",
+  "version": "1.0.0",
+  "homePage": "https://github.com/HakaiGod420/st-ledger",
+  "auto_update": false
+}

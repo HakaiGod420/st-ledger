@@ -1,0 +1,36 @@
+<div class="lgd-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Ledger</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" aria-hidden="true"></div>
+        </div>
+
+        <div class="inline-drawer-content">
+            <p class="lgd-settings-note">
+                Keeps a short, editable record of what the story has established — time, place, clothing,
+                money, health, relationships — and reads only the messages it has not read yet.
+            </p>
+
+            <label class="lgd-settings-row">
+                <span>Sync automatically</span>
+                <input type="checkbox" id="lgd-auto">
+            </label>
+
+            <label class="lgd-settings-row">
+                <span>Every</span>
+                <input type="number" id="lgd-every" min="1" max="50" step="1" class="text_pole">
+                <span>new messages</span>
+            </label>
+
+            <button type="button" id="lgd-open" class="menu_button">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                Tracker settings
+            </button>
+
+            <p class="lgd-settings-note lgd-hint">
+                Fields, the block under the reply, and what gets injected into the prompt live in the tracker settings.
+                The panel can be dragged by its header.
+            </p>
+        </div>
+    </div>
+</div>

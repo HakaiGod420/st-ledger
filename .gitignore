@@ -1,0 +1,7 @@
+test/mirror/
+test/last_post.jsonl
+test/*.log
+test/*.err
+test/tmp/
+*.zip
+.DS_Store
